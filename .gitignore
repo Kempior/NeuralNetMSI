@@ -1,0 +1,4 @@
+bin/
+obj/
+*.mk
+NeuralNet.txt
