@@ -10,6 +10,7 @@
     <Topleveldir>/Users/Kempior/Desktop/Projects/NeuralNet</Topleveldir>
   </Reconciliation>
   <VirtualDirectory Name="include">
+    <File Name="include/NeuralNet.hpp"/>
     <File Name="include/Application.hpp"/>
     <VirtualDirectory Name="ServiceLocator">
       <File Name="include/ServiceLocator/DefaultResourceFont.hpp"/>
@@ -136,6 +137,7 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="include/NeuralNet.cpp"/>
     <File Name="src/Application.cpp"/>
     <VirtualDirectory Name="ServiceLocator">
       <File Name="src/ServiceLocator/DefaultResourceFont.cpp"/>

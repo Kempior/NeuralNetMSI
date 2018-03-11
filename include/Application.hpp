@@ -2,6 +2,9 @@
 #define APPLICATION_HPP
 
 #include "SFML/Graphics.hpp"
+#include "NeuralNet.hpp"
+
+#include <vector>
 
 class Button;
 
@@ -16,6 +19,9 @@ public:
 private:
 	sf::RenderWindow window;
 	Button* button;
+	
+	NeuralNet *neuralNet;
+	std::vector<std::vector<float>> examples;
 };
 
 #endif //APPLICATION_HPP
