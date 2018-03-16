@@ -28,16 +28,9 @@ Application::Application()
 			this->button->setText("Hello");
 			
 			this->neuralNet->LoadWeights(LoadFile("../../weights.txt", 3, 3));
-			
-			std::vector<std::vector<float>> weights = this->neuralNet->Weights();
-			std::cout << weights[0][0] << ' ' << weights[0][1] << ' ' << weights[0][2] << std::endl;
-			std::cout << weights[1][0] << ' ' << weights[1][1] << ' ' << weights[1][2] << std::endl;
-			std::cout << weights[2][0] << ' ' << weights[2][1] << ' ' << weights[2][2] << std::endl << std::endl;
-			
 			examples = LoadFile("../../trainingValues.txt", 3, 2);
-			std::cout << examples[0][0] << ' ' << examples[0][1] << std::endl;
-			std::cout << examples[1][0] << ' ' << examples[1][1] << std::endl;
-			std::cout << examples[2][0] << ' ' << examples[2][1] << std::endl;
+			
+			neuralNet->Learn(examples);
 		});
 }
 
