@@ -66,15 +66,24 @@ void NeuralNet::Learn(std::vector<std::vector<float>> learningValues) {
 	unsigned int updatesWithoutChanges = 0;
 	
 	// Main learning loop
-	for (unsigned int i = 0; i < 20 && updatesWithoutChanges < learningValues.size() + 1; i++) {
+	for (unsigned int i = 0; i < 1000 && updatesWithoutChanges < learningValues.size() + 1; i++) {
+		
 		updatesWithoutChanges++;
-		
 		unsigned int currentValue = i % learningValues.size();
-		
 		std::vector<float> prediction = PredictBiased(learningValues[currentValue]);
 		
+		// Just for the homework, delet this
+		std::cout << "Processed point: " << learningValues[currentValue][0] << ", " << learningValues[currentValue][1] << ", (" << learningValues[currentValue][2] << ")" << std::endl;
+		std::cout << "Weights:" << std::endl << (*weights)[0][0] << ' ' << (*weights)[0][1] << ' ' << (*weights)[0][2] << std::endl;
+		std::cout << (*weights)[1][0] << ' ' << (*weights)[1][1] << ' ' << (*weights)[1][2] << std::endl;
+		std::cout << (*weights)[2][0] << ' ' << (*weights)[2][1] << ' ' << (*weights)[2][2] << std::endl << "Predicted output: ";
+		// End of delet this
+		
 		for (unsigned int j = 0; j < prediction.size(); j++) {
-			std::cout << prediction[j] << "  \t";
+			
+			// Delet this too
+			std::cout << prediction[j] << "\t";
+			// End of delet this
 			
 			// Yes, i'm doing comparisons on floats. Shush.
 			if ((j == currentValue && prediction[j] != 1) || 
@@ -86,10 +95,8 @@ void NeuralNet::Learn(std::vector<std::vector<float>> learningValues) {
 			}
 		}
 		
-		std::cout << std::endl << (*weights)[0][0] << ' ' << (*weights)[0][1] << ' ' << (*weights)[0][2] << std::endl;
-		std::cout << (*weights)[1][0] << ' ' << (*weights)[1][1] << ' ' << (*weights)[1][2] << std::endl;
-		std::cout << (*weights)[2][0] << ' ' << (*weights)[2][1] << ' ' << (*weights)[2][2] << std::endl;
-		
-		std::cout << "currentValue =  " << currentValue << ", updatesWithouthanges =  " << updatesWithoutChanges << std::endl << std::endl;
+		// Also delet this
+		std::cout << "\nIteration number: " << i << ", currentValue =  " << currentValue << ", updatesWithouthanges =  " << updatesWithoutChanges << std::endl << std::endl;
+		// End of delet this
 	}
 }
