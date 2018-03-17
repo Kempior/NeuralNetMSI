@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class Button;
+class Canvas;
 
 class Application
 {
@@ -18,7 +18,9 @@ public:
 	
 private:
 	sf::RenderWindow window;
-	Button* button;
+	Canvas* canvas;
+	
+	float time;
 	
 	NeuralNet *neuralNet;
 	std::vector<std::vector<float>> examples;
