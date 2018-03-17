@@ -6,6 +6,7 @@ TextField::TextField(std::string name, sf::Vector2f size): Widget(name)
 {
 	setSize(size);
 	textFieldRect.setFillColor(sf::Color::White);
+	textFieldRect.setOutlineColor(sf::Color::Red);
 	
 	text = new Label(name + "Label", "Enter text...");
 	text->setColor(sf::Color::Black);
@@ -25,10 +26,12 @@ void TextField::handleEvent(const sf::Event& event)
 				event.mouseButton.y > textFieldRect.getPosition().y + textFieldRect.getSize().y)
 			{
 				isSelected = false;
+				textFieldRect.setOutlineThickness(0.0f);
 			}
 			else
 			{
 				isSelected = true;
+				textFieldRect.setOutlineThickness(2.0f);
 			}
 		}
 

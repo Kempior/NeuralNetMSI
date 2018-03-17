@@ -52,6 +52,7 @@ Application::Application()
 		os << examples[2][0] << ' ' << examples[2][1] << "\n";
 		
 		data->setText(os.str());
+		neuralNet->Learn(examples);
 	});
 	
 	Label* uL = new Label("UpdateLabel", "");
