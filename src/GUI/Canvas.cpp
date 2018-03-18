@@ -22,6 +22,12 @@ void Canvas::handleEvent(const sf::Event& event)
 
 void Canvas::update(float dt)
 {
+	if(Widget::isModified)
+	{
+		updateStatus();
+		Widget::isModified = false;
+	}
+	
 	Widget::update(dt);
 }
 

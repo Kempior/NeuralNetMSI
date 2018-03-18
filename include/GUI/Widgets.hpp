@@ -3,3 +3,4 @@
 #include "GUI/Label.hpp"
 #include "GUI/Button.hpp"
 #include "GUI/TextField.hpp"
+#include "GUI/Box.hpp"

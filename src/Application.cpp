@@ -10,62 +10,32 @@
 
 #include <iostream>
 #include <sstream>
+#include <ctime>
+#include <regex>
 
-Application::Application()
+Application::Application():
+generator(std::time(NULL)),
+dist(-10, 10)
 {
 	window.create(sf::VideoMode(1280, 720), "Neural Net");
 	canvas = new Canvas(window);
 	
+	weights.resize(3);
+	for(int i = 0; i < 3; ++i)
+	{
+		weights[i].resize(3);
+	}
+	
+	examples.resize(3);
+	for(int i = 0; i < 3; ++i)
+	{
+		examples[i].resize(2);
+	}
+	
+	generator();
+	
 	Locator::provideFont(new DefaultResourceFont());
-
-	Button* b = new Button("Button", sf::Vector2f(100.0f, 40.0f));
-	b->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(10.0f, 10.0f), UPPER_LEFT);
-	canvas->addChildWidget(b);
-
-	Label* l = new Label("Label", "Hello");
-	l->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
-	b->addChildWidget(l);
-	
-	TextField* tf = new TextField("TextField", sf::Vector2f(200.0f, 30.0f));
-	tf->setAnchor(sf::Vector2f(0.05f, 0.5f), sf::Vector2f(), LEFT);
-	canvas->addChildWidget(tf);
-	
-	Label* data = new Label("DataLabel", "");
-	data->setAnchor(sf::Vector2f(1.0f, 0.0f), sf::Vector2f(-10.0f, 10.0f), UPPER_RIGHT);
-	canvas->addChildWidget(data);
-	
-	b->setFunc([this, b, data]() {
-		b->getWidget<Label>("Label")->setText("Hello Hello");
-		
-		this->neuralNet->LoadWeights(LoadFile("weights.txt", 3, 3));
-		
-		std::ostringstream os;
-		
-		std::vector<std::vector<float>> weights = this->neuralNet->Weights();
-		os << weights[0][0] << ' ' << weights[0][1] << ' ' << weights[0][2] << "\n";
-		os << weights[1][0] << ' ' << weights[1][1] << ' ' << weights[1][2] << "\n";
-		os << weights[2][0] << ' ' << weights[2][1] << ' ' << weights[2][2] << "\n\n";
-		
-		examples = LoadFile("trainingValues.txt", 3, 2);
-		os << examples[0][0] << ' ' << examples[0][1] << "\n";
-		os << examples[1][0] << ' ' << examples[1][1] << "\n";
-		os << examples[2][0] << ' ' << examples[2][1] << "\n";
-		
-		data->setText(os.str());
-		neuralNet->Learn(examples);
-	});
-	
-	Label* uL = new Label("UpdateLabel", "");
-	uL->setAnchor(sf::Vector2f(0.05f, 0.75f), sf::Vector2f(), LEFT);
-	canvas->addChildWidget(uL);
-	
-	uL->setTextSourceLambda([this]() -> std::string {
-		std::ostringstream os;
-		
-		os << this->time;
-		
-		return os.str();
-	});
+	setupGUI();
 	
 	neuralNet = new NeuralNet(2, 3);
 }
@@ -80,8 +50,6 @@ Application::~Application()
 
 void Application::run()
 {
-	sf::Clock clock;
-	
 	while(window.isOpen())
 	{
 		sf::Event event;
@@ -104,8 +72,7 @@ void Application::run()
 				window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
 			}
 		}
-		
-		time = clock.getElapsedTime().asSeconds();
+
 		canvas->update(0.0f);
 		
 		window.clear();
@@ -113,5 +80,204 @@ void Application::run()
 		canvas->draw(window);
 		
 		window.display();
+	}
+}
+
+void Application::setupGUI()
+{
+	//Data box
+	Box* dataBox = new Box("DataBox", sf::Vector2f(320.0f, 500.0f));
+	dataBox->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(), UPPER_LEFT);
+	canvas->addChildWidget(dataBox);
+	
+	//Info Box
+	Box* infoBox = new Box("InfoBox", sf::Vector2f(320.0f, 500.0f));
+	infoBox->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(), UPPER_LEFT);
+	infoBox->setIsActive(false);
+	canvas->addChildWidget(infoBox);
+	
+	//Top data buttons
+	Button* button = new Button("LoadFromFileButton", sf::Vector2f(120.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.03f, 0.02f), sf::Vector2f(), UPPER_LEFT);
+	dataBox->addChildWidget(button);
+
+	Label* label = new Label("LoadFromFileLabel", "Load From File");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this](){
+		this->weights = LoadFile("weights.txt", 3, 3);
+		this->examples = LoadFile("trainingValues.txt", 3, 2);
+	});
+	
+	////
+	button = new Button("RandomButton", sf::Vector2f(120.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.03f, 0.02f), sf::Vector2f(0.0f, 40.0f), UPPER_LEFT);
+	dataBox->addChildWidget(button);
+
+	label = new Label("RandomLabel", "Random");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this](){
+		for(unsigned int i = 0; i < this->weights.size(); ++i)
+		{
+			for(unsigned int j = 0; j < this->weights[i].size(); ++j)
+			{
+				this->weights[i][j] = dist(generator);
+			}
+		}
+		
+		for(unsigned int i = 0; i < this->examples.size(); ++i)
+		{
+			for(unsigned int j = 0; j < this->examples[i].size(); ++j)
+			{
+				this->examples[i][j] = dist(generator);
+			}
+		}
+	});
+	
+	////
+	button = new Button("NextButton", sf::Vector2f(120.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(), UPPER_RIGHT);
+	dataBox->addChildWidget(button);
+
+	label = new Label("NextLabel", "Next");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this, dataBox, infoBox](){
+		dataBox->setIsActive(false);
+		infoBox->setIsActive(true);
+	});
+	
+	////
+	button = new Button("ResetButton", sf::Vector2f(120.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(0.0f, 40.0f), UPPER_RIGHT);
+	dataBox->addChildWidget(button);
+
+	label = new Label("ResetLabel", "Reset");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this](){
+		for(unsigned int i = 0; i < this->weights.size(); ++i)
+		{
+			for(unsigned int j = 0; j < this->weights[i].size(); ++j)
+			{
+				this->weights[i][j] = 0;
+			}
+		}
+		
+		for(unsigned int i = 0; i < this->examples.size(); ++i)
+		{
+			for(unsigned int j = 0; j < this->examples[i].size(); ++j)
+			{
+				this->examples[i][j] = 0;
+			}
+		}
+	});
+	
+	////Data weights
+	const float offset = 28.0f;
+	const float size = 80.0f;
+	const float space = 8.0f;
+	const int rounding = 6;
+	
+	auto validateFunc = [](std::string str) -> bool {
+		return std::regex_match(str, std::regex("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?"));
+	};
+	
+	for(int i = 0; i < 3; ++i)
+	{
+		label = new Label("W" + std::to_string(i + 1), "W" + std::to_string(i + 1));
+		label->setAnchor(sf::Vector2f(0.03f, 0.4f + 0.1f * i), sf::Vector2f(), LEFT);
+		dataBox->addChildWidget(label);
+		
+		TextField* textField;
+		
+		for(int j = 0; j < 3; ++j)
+		{
+			textField = new TextField("W" + std::to_string(i + 1) + std::to_string(j + 1), sf::Vector2f(size, 30.0f));
+			textField->setAnchor(sf::Vector2f(0.04f, 0.4f + 0.1f * i), sf::Vector2f(offset + j * size + j * space, 0.0f), LEFT);
+			dataBox->addChildWidget(textField);
+			textField->setTextSourceFunc([this, i, j, rounding]() -> std::string {
+				return std::to_string(this->weights[i][j]).substr(0, rounding);
+			});
+			textField->setDataUpdateFunc([this, textField, i, j](){
+				this->weights[i][j] = atof(textField->getText().c_str());
+			});
+			textField->setValidateFunc(validateFunc);
+		}
+	}
+	
+	//Data points
+	for(int i = 0; i < 3; ++i)
+	{
+		label = new Label("P" + std::to_string(i + 1), "P" + std::to_string(i + 1));
+		label->setAnchor(sf::Vector2f(0.03f, 0.7f + 0.1f * i), sf::Vector2f(), LEFT);
+		dataBox->addChildWidget(label);
+		
+		TextField* textField;
+		
+		for(int j = 0; j < 2; ++j)
+		{
+			textField = new TextField("P" + std::to_string(i + 1) + std::to_string(j + 1), sf::Vector2f(size, 30.0f));
+			textField->setAnchor(sf::Vector2f(0.04f, 0.7f + 0.1f * i), sf::Vector2f(offset + j * size + j * space, 0.0f), LEFT);
+			dataBox->addChildWidget(textField);
+			textField->setTextSourceFunc([this, i, j, rounding]() -> std::string {
+				return std::to_string(this->examples[i][j]).substr(0, rounding);
+			});
+			textField->setDataUpdateFunc([this, textField, i, j](){
+				this->examples[i][j] = atof(textField->getText().c_str());
+			});
+			textField->setValidateFunc(validateFunc);
+		}
+	}
+	
+	////Top info buttons
+	button = new Button("BackButton", sf::Vector2f(120.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.03f, 0.02f), sf::Vector2f(), UPPER_LEFT);
+	infoBox->addChildWidget(button);
+	
+	label = new Label("BackLabel", "Back");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this, dataBox, infoBox](){
+		dataBox->setIsActive(true);
+		infoBox->setIsActive(false);
+	});
+	
+	////
+	button = new Button("StartButton", sf::Vector2f(120.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(), UPPER_RIGHT);
+	infoBox->addChildWidget(button);
+	
+	label = new Label("StartLabel", "Start");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this](){
+		this->neuralNet->LoadWeights(weights);
+		this->neuralNet->Learn(examples);
+	});
+	
+	////Weights results
+	for(int i = 0; i < 3; ++i)
+	{
+		label = new Label("W" + std::to_string(i + 1), "W" + std::to_string(i + 1));
+		label->setAnchor(sf::Vector2f(0.03f, 0.4f + 0.1f * i), sf::Vector2f(), LEFT);
+		infoBox->addChildWidget(label);
+		
+		for(int j = 0; j < 3; ++j)
+		{
+			label = new Label("W" + std::to_string(i + 1) + std::to_string(j + 1));
+			label->setAnchor(sf::Vector2f(0.04f, 0.4f + 0.1f * i), sf::Vector2f(offset + j * size + j * space, 0.0f), LEFT);
+			infoBox->addChildWidget(label);
+			label->setTextSourceLambda([this, i, j, rounding]() -> std::string {
+				return std::to_string(this->neuralNet->Weights()[i][j]).substr(0, rounding + 2);
+			});
+		}
 	}
 }

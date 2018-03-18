@@ -1,5 +1,7 @@
 #include "GUI/Widget.hpp"
 
+bool Widget::isModified = false;
+
 Widget::Widget(std::string widgetName):
 name(widgetName)
 {
@@ -85,4 +87,19 @@ void Widget::setAnchor(sf::Vector2f anchor, sf::Vector2f anchorOffset, AnchorPoi
 	this->anchorMode = anchorMode;
 	
 	recalculatePosition();
+}
+
+void Widget::setIsActive(bool isActive)
+{
+	newIsActive = isActive;
+	Widget::isModified = true;
+}
+
+void Widget::updateStatus()
+{
+	isActive = newIsActive;
+	for(auto widget : childWidgets)
+	{
+		widget->updateStatus();
+	}
 }

@@ -39,10 +39,14 @@ public:
 	void recalculatePosition();
 	void setAnchor(sf::Vector2f anchor, sf::Vector2f anchorOffset, AnchorPoint anchorMode);
 	
-public:
-	bool isActive = true;
+	void setIsActive(bool isActive);
+	void updateStatus();
 	
 protected:
+	bool isActive = true;
+	bool newIsActive = true;
+	static bool isModified;
+
 	Widget* parent = nullptr;
 	std::vector<Widget*> childWidgets;
 	
