@@ -72,19 +72,17 @@ std::vector<float> NeuralNet::Predict(std::vector<float> input) {
 	return PredictBiased(input);
 }
 
-unsigned int NeuralNet::LearningIteration() const {
-	return learningIteration;
-}
-
-unsigned int NeuralNet::UpdatesWithoutChanges() const {
-	return updatesWithoutChanges;
-}
-
 
 void NeuralNet::LearnStep(std::vector<std::vector<float>> learningValues) {
 	
+	// Updating some variables used throughout the function
 	updatesWithoutChanges++;
 	unsigned int currentValue = learningIteration % learningValues.size();
+	
+	// Adding the bias untis
+	learningValues[currentValue].push_back(-1);
+	
+	// Generating the prediction
 	std::vector<float> prediction = PredictBiased(learningValues[currentValue]);
 	
 	// Just for the homework, delet this
@@ -114,18 +112,24 @@ void NeuralNet::LearnStep(std::vector<std::vector<float>> learningValues) {
 	std::cout << "\nIteration number: " << learningIteration << ", currentValue =  " << currentValue << ", updatesWithouthanges =  " << updatesWithoutChanges << std::endl << std::endl;
 	// End of delet this
 	
+	// Pushing back current weights to history
+	history.push_back(weights);
+	
+	// Also pretty obvious
 	learningIteration++;
 }
 
 void NeuralNet::Learn(std::vector<std::vector<float>> learningValues) {
-	
-	// Adding the bias untis
-	for (unsigned int i = 0; i < learningValues.size(); i++) {
-		learningValues[i].push_back(-1);
-	}
-	
 	// Main learning loop
-	for (learningIteration = 0; learningIteration < maxLearningIterations && updatesWithoutChanges < learningValues.size() + 1;) {
+	while (learningIteration < maxLearningIterations && updatesWithoutChanges < learningValues.size() + 1) {
 		LearnStep(learningValues);
 	}
+}
+
+unsigned int NeuralNet::LearningIteration() const {
+	return learningIteration;
+}
+
+unsigned int NeuralNet::UpdatesWithoutChanges() const {
+	return updatesWithoutChanges;
 }
