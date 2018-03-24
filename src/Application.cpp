@@ -259,11 +259,13 @@ void Application::setupGUI()
 	button->addChildWidget(label);
 	
 	button->setFunc([this](){
+		
 		if (this->neuralNet->LearningIteration() == 0) {
 			this->neuralNet->LoadWeights(weights);
-			std::cout << "Weights loaded into the NN\n\n";
+			this->neuralNet->LoadLearningValues(examples);
+			std::cout << "Weights and examples loaded into the NN\n\n";
 		}
-		this->neuralNet->LearnStep(examples);
+		this->neuralNet->LearnStep();
 	});
 	
 	////Weights results
