@@ -119,9 +119,9 @@ void NeuralNet::LearnStep() {
 		if ((j == currentValue && prediction[j] != 1) || 
 			(j != currentValue && prediction[j] != -1)) {
 			for (unsigned int k = 0; k < weights[0].size(); k++) {
-				weights[j][k] -= learningValues[currentValue][k];
-				updatesWithoutChanges = 0;
+				weights[j][k] -= prediction[j] * learningRate * learningValues[currentValue][k];
 			}
+			updatesWithoutChanges = 0;
 		}
 	}
 	
