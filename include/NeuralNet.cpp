@@ -88,15 +88,18 @@ std::vector<float> NeuralNet::Predict(std::vector<float> input) {
 }
 
 
-void NeuralNet::LearnStep() {
+bool NeuralNet::LearnStep() {
+	
+	// Checks to end learning
+	if (learningIteration >= maxLearningIterations						// Is maximumIterations exceeded
+			|| updatesWithoutChanges >= learningValues.size()			// The end condition
+			|| learningValues.size() == 0)								// Sanity check - are there any learningValues
+		return true;
 	
 	// Updating some variables used throughout the function
 	updatesWithoutChanges++;
 	
-	// Sanity check. Will stop iterating after some time thanks to updatesWithoutChanges++ above
-	if (learningValues.size() == 0)
-		return;
-	
+	// Index of the currently processed example
 	unsigned int currentValue = learningIteration % learningValues.size();
 	
 	// Generating the prediction
@@ -134,11 +137,11 @@ void NeuralNet::LearnStep() {
 	
 	// Also pretty obvious
 	learningIteration++;
+	
+	return false;
 }
 
 void NeuralNet::Learn() {
 	// Main learning loop
-	while (learningIteration < maxLearningIterations && updatesWithoutChanges < learningValues.size() + 1) {
-		LearnStep();
-	}
+	while (!LearnStep());
 }

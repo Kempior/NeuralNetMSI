@@ -17,12 +17,12 @@ class NeuralNet
 	std::vector<float> PredictBiased(const std::vector<float> &input);
 	
 public:
-	NeuralNet(unsigned int inputs, unsigned int outputs, unsigned int maximumLearningIterations = 100, float learningRate = 1.);
+	NeuralNet(unsigned int inputs, unsigned int outputs, unsigned int maximumLearningIterations = 1000, float learningRate = 1.);
 	~NeuralNet();
 	
 	std::vector<float> Predict(std::vector<float> input);
 	
-	void LearnStep();
+	bool LearnStep();
 	void Learn();
 	unsigned int LearningIteration() const { return learningIteration; }
 	unsigned int UpdatesWithoutChanges() const { return updatesWithoutChanges; }
