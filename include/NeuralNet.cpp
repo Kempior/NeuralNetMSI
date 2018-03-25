@@ -1,7 +1,8 @@
 #include "NeuralNet.hpp"
 #include <iostream>
 
-NeuralNet::NeuralNet(unsigned int inputs, unsigned int outputs, unsigned int maximumLearningIterations) : inputsWithBiasSize(inputs + 1), outputSize(outputs), maxLearningIterations(maximumLearningIterations) {
+NeuralNet::NeuralNet(unsigned int inputs, unsigned int outputs, unsigned int maximumLearningIterations, float newLearningRate)
+		: learningRate(newLearningRate), inputsWithBiasSize(inputs + 1), outputSize(outputs), maxLearningIterations(maximumLearningIterations) {
 	weights = std::vector<std::vector<float>>(inputsWithBiasSize, std::vector<float>(outputs));
 	ResetInternals();
 }
@@ -30,6 +31,13 @@ void NeuralNet::LoadLearningValues(const std::vector<std::vector<float>> &newLea
 void NeuralNet::LoadWeights (std::vector<std::vector<float>> newWeights) {
 	weights = newWeights;
 	ResetInternals();
+}
+
+
+void NeuralNet::LearningRate(float newLearningRate) {
+	ResetInternals();
+	
+	learningRate = newLearningRate;
 }
 
 
