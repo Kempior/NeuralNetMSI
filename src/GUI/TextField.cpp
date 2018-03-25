@@ -106,6 +106,11 @@ void TextField::update(float dt)
 		inputedText = textSourceFunc();
 		text->setText(inputedText);
 	}
+	
+	if(isActive)
+	{
+		Widget::update(dt);
+	}
 }
 
 void TextField::draw(sf::RenderWindow& window)

@@ -16,7 +16,13 @@ public:
 	~Application();
 	
 	void run();
+	
+private:
 	void setupGUI();
+	void setupBoxes();
+	void setupDataBox();
+	void setupInfoBox();
+	void setupHistoryGraph();
 	
 private:
 	sf::RenderWindow window;
@@ -24,6 +30,8 @@ private:
 	
 	NeuralNet *neuralNet;
 	std::vector<std::vector<float>> weights, examples;
+	bool slowMotion = false, isLearning = false;
+	float speedMult = 1.0f;
 
 	std::minstd_rand0 generator;
 	std::uniform_int_distribution<int> dist;

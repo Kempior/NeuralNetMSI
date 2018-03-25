@@ -11,6 +11,8 @@
   </Reconciliation>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="GUI">
+      <File Name="include/GUI/GeometryGraph.hpp"/>
+      <File Name="include/GUI/HistoryGraph.hpp"/>
       <File Name="include/GUI/Box.hpp"/>
       <File Name="include/GUI/Widgets.hpp"/>
       <File Name="include/GUI/TextField.hpp"/>
@@ -147,6 +149,8 @@
   <Dependencies/>
   <VirtualDirectory Name="src">
     <VirtualDirectory Name="GUI">
+      <File Name="src/GUI/GeometryGraph.cpp"/>
+      <File Name="src/GUI/HistoryGraph.cpp"/>
       <File Name="src/GUI/Box.cpp"/>
       <File Name="src/GUI/TextField.cpp"/>
       <File Name="src/GUI/Button.cpp"/>
