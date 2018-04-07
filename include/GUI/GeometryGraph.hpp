@@ -17,7 +17,11 @@ public:
 	void setPosition(sf::Vector2f position) override;
 	
 	void setPoints(const std::vector<std::vector<float>>& points);
+	void setPredictPoint(const std::vector<float>& point);
 	void setWeights(const std::vector<std::vector<float>>& weights);
+	
+private:
+	void setView();
 	
 private:
 	sf::Vector2f position;
@@ -28,6 +32,7 @@ private:
 	float maxValue = 0.0f;
 	sf::RectangleShape horizontalLine, verticalLine, lines[3];
 	sf::CircleShape points[3];
+	sf::CircleShape predictPoint;
 };
 
 #endif //GEOMETRYGRAPH_HPP

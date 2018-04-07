@@ -451,6 +451,7 @@ void Application::setupInfoBox()
 	textField->setDataUpdateFunc([this, textField]()
 	{
 		predictPoint[0] = atof(textField->getText().c_str());
+		canvas->getWidget<GeometryGraph>("GeometryGraph")->setPredictPoint(predictPoint);
 	});
 	textField->setValidateFunc([](std::string str) -> bool
 	{
@@ -472,6 +473,7 @@ void Application::setupInfoBox()
 	textField->setDataUpdateFunc([this, textField]()
 	{
 		predictPoint[1] = atof(textField->getText().c_str());
+		canvas->getWidget<GeometryGraph>("GeometryGraph")->setPredictPoint(predictPoint);
 	});
 	textField->setValidateFunc([](std::string str) -> bool
 	{

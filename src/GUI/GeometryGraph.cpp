@@ -10,9 +10,8 @@ size(size)
 	{
 		lines[i].setFillColor(sf::Color::Cyan);
 		points[i].setFillColor(sf::Color::Red);
-		points[i].setRadius(0.1f);
-		points[i].setOrigin(0.1f, 0.1f);
 	}
+	predictPoint.setFillColor(sf::Color::Green);
 	
 	graphView.setViewport(sf::FloatRect(0.3f, 0.0f, 0.7f, 0.6f));
 }
@@ -51,6 +50,8 @@ void GeometryGraph::draw(sf::RenderWindow& window)
 		window.draw(points[i]);
 	}
 	
+	window.draw(predictPoint);
+	
 	window.setView(current);
 	
 	Widget::draw(window);
@@ -79,7 +80,48 @@ void GeometryGraph::setPoints(const std::vector<std::vector<float>>& point)
 		maxValue = std::max(maxValue, std::max(std::abs(point[i][0]), std::abs(point[i][1])));
 	}
 	
+	setView();
+}
+
+void GeometryGraph::setPredictPoint(const std::vector<float>& point)
+{
+	predictPoint.setPosition(point[0], -point[1]);
+	
+	setView();
+}
+
+void GeometryGraph::setWeights(const std::vector<std::vector<float>>& weights)
+{
+	for(int i = 0; i < 3; ++i)
+	{
+		if(weights[i][0] == 0.0f)
+		{
+			lines[i].setPosition(0.0f, -weights[i][2] / weights[i][1]);
+		}
+		else
+		{
+			lines[i].setPosition(weights[i][2] / weights[i][0], 0.0f);
+		}
+		
+		if(weights[i][1] == 0.0f)
+		{
+			lines[i].setRotation(90.0f);
+		}
+		else
+		{
+			lines[i].setRotation(-std::atan(-weights[i][0] / weights[i][1]) * 180.0f / 3.14159f);
+		}
+	}
+	
+	setView();
+}
+
+void GeometryGraph::setView()
+{
 	const float lineSize = 0.005f;
+	const float radius = 0.01f;
+	
+	float maxValue = std::max(this->maxValue, std::max(std::abs(predictPoint.getPosition().x), std::abs(predictPoint.getPosition().y)));
 	
 	horizontalLine.setSize(sf::Vector2f(3.0f * maxValue * size.x / size.y, maxValue * lineSize));
 	horizontalLine.setOrigin(1.5f * maxValue * size.x / size.y, maxValue * lineSize / 2.0f);
@@ -87,39 +129,22 @@ void GeometryGraph::setPoints(const std::vector<std::vector<float>>& point)
 	verticalLine.setSize(sf::Vector2f(maxValue * lineSize, 3.0f * maxValue));
 	verticalLine.setOrigin(maxValue * lineSize / 2.0f, 1.5f * maxValue);
 	
+	for(int i = 0; i < 3; ++i)
+	{
+		points[i].setRadius(maxValue * radius);
+		points[i].setOrigin(maxValue * radius, maxValue * radius);
+	}
+	
+	predictPoint.setRadius(1.5f * maxValue * radius);
+	predictPoint.setOrigin(1.5f * maxValue * radius, 1.5f * maxValue * radius);
+	
+	for(int i = 0; i < 3; ++i)
+	{
+		lines[i].setSize(sf::Vector2f(3.0f * std::max(maxValue, std::abs(lines[i].getPosition().x)) * size.x / size.y, maxValue * lineSize));
+		lines[i].setOrigin(sf::Vector2f(1.5f * std::max(maxValue, std::abs(lines[i].getPosition().x)) * size.x / size.y, maxValue * lineSize / 2.0f));
+	}
+	
 	graphView.setCenter(0.0f, 0.0f);
 	graphView.setSize(2.0f * maxValue * size.x / size.y, 2.0f * maxValue);
 	graphView.zoom(1.075f);
-}
-
-void GeometryGraph::setWeights(const std::vector<std::vector<float>>& weights)
-{
-	float lineSize = 0.005f;
-	for(int i = 0; i < 3; ++i)
-	{
-		float dist = 0.0f;
-		if(weights[i][0] == 0.0f)
-		{
-			lines[i].setPosition(0.0f, -weights[i][2] / weights[i][1]);
-			dist = 0.0f;
-		}
-		else
-		{
-			lines[i].setPosition(weights[i][2] / weights[i][0], 0.0f);
-			dist = std::abs(lines[i].getPosition().x);
-		}
-		
-		if(weights[i][1] == 0.0f)
-		{
-			lines[i].setRotation(90.0f);
-			lines[i].setSize(sf::Vector2f(3.0f * maxValue, maxValue * lineSize));
-			lines[i].setOrigin(sf::Vector2f(1.5f * maxValue, maxValue * lineSize / 2.0f));
-		}
-		else
-		{
-			lines[i].setRotation(-std::atan(-weights[i][0] / weights[i][1]) * 180.0f / 3.14159f);
-			lines[i].setSize(sf::Vector2f(3.0f * std::max(maxValue, dist) * size.x / size.y, maxValue * lineSize));
-			lines[i].setOrigin(sf::Vector2f(1.5f * std::max(maxValue, dist) * size.x / size.y, maxValue * lineSize / 2.0f));
-		}
-	}
 }
