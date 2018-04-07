@@ -20,8 +20,7 @@ size(size)
 	horizontalLine.setFillColor(sf::Color::White);
 	verticalLine.setFillColor(sf::Color::White);
 	
-	graphView.setViewport(sf::FloatRect(0.0f, 0.69444f, 1.0f, 0.30555f));
-	graphView.zoom(1.1f);
+	graphView.setViewport(sf::FloatRect(0.0f, 0.6f, 1.0f, 0.4f));
 	
 	for(int i = 0; i < 9; ++i)
 	{
@@ -42,6 +41,12 @@ size(size)
 
 void HistoryGraph::handleEvent(const sf::Event& event)
 {
+	if(event.type == sf::Event::Resized)
+	{
+		size = parent->getSize();
+		recalculatePosition();
+	}
+	
 	Widget::handleEvent(event);
 }
 

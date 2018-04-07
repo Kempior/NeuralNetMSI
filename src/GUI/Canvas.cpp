@@ -7,8 +7,6 @@ Canvas::Canvas(sf::RenderWindow& window): Widget("Canvas")
 
 void Canvas::handleEvent(const sf::Event& event)
 {
-	Widget::handleEvent(event);
-	
 	if(event.type == sf::Event::Resized)
 	{
 		size = sf::Vector2f(event.size.width, event.size.height);
@@ -18,6 +16,8 @@ void Canvas::handleEvent(const sf::Event& event)
 			widget->recalculatePosition();
 		}
 	}
+	
+	Widget::handleEvent(event);
 }
 
 void Canvas::update(float dt)

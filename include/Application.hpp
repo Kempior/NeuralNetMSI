@@ -23,6 +23,7 @@ private:
 	void setupDataBox();
 	void setupInfoBox();
 	void setupHistoryGraph();
+	void setupGeometryGraph();
 	
 private:
 	sf::RenderWindow window;
@@ -30,6 +31,7 @@ private:
 	
 	NeuralNet *neuralNet;
 	std::vector<std::vector<float>> weights, examples;
+	std::vector<float> predictPoint;
 	bool slowMotion = false, isLearning = false;
 	float speedMult = 1.0f;
 

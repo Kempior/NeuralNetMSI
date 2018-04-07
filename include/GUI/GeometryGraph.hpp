@@ -16,11 +16,18 @@ public:
 	sf::Vector2f getSize() override;
 	void setPosition(sf::Vector2f position) override;
 	
+	void setPoints(const std::vector<std::vector<float>>& points);
+	void setWeights(const std::vector<std::vector<float>>& weights);
+	
 private:
 	sf::Vector2f position;
 	sf::Vector2f size;
 	
 	sf::View graphView;
+	
+	float maxValue = 0.0f;
+	sf::RectangleShape horizontalLine, verticalLine, lines[3];
+	sf::CircleShape points[3];
 };
 
 #endif //GEOMETRYGRAPH_HPP

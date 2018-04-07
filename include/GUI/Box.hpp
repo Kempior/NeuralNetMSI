@@ -6,7 +6,7 @@
 class Box : public Widget
 {
 public:
-	Box(std::string name, sf::Vector2f size);
+	Box(std::string name, sf::FloatRect rect);
 	
 	void handleEvent(const sf::Event& event) override;
 	void update(float dt) override;
@@ -16,9 +16,13 @@ public:
 	sf::Vector2f getSize() override;
 	void setPosition(sf::Vector2f position) override;
 	
+	void recalculateSize();
+	
 private:
 	sf::Vector2f position;
 	sf::Vector2f size;
+	
+	sf::FloatRect rect;
 };
 
 #endif //BOX_HPP

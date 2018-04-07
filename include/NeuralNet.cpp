@@ -106,16 +106,16 @@ bool NeuralNet::LearnStep() {
 	std::vector<float> prediction = PredictBiased(learningValues[currentValue]);
 	
 	// Just for the homework, delet this
-	std::cout << "Processed point: " << learningValues[currentValue][0] << ", " << learningValues[currentValue][1] << ", (" << learningValues[currentValue][2] << ")" << std::endl;
+	/*std::cout << "Processed point: " << learningValues[currentValue][0] << ", " << learningValues[currentValue][1] << ", (" << learningValues[currentValue][2] << ")" << std::endl;
 	std::cout << "Weights:" << std::endl << weights[0][0] << ' ' << weights[0][1] << ' ' << weights[0][2] << std::endl;
 	std::cout << weights[1][0] << ' ' << weights[1][1] << ' ' << weights[1][2] << std::endl;
-	std::cout << weights[2][0] << ' ' << weights[2][1] << ' ' << weights[2][2] << std::endl << "Predicted output: ";
+	std::cout << weights[2][0] << ' ' << weights[2][1] << ' ' << weights[2][2] << std::endl << "Predicted output: ";*/
 	// End of delet this
 	
 	for (unsigned int j = 0; j < prediction.size(); j++) {
 		
 		// Delet this too
-		std::cout << prediction[j] << "\t";
+		//std::cout << prediction[j] << "\t";
 		// End of delet this
 		
 		// Yes, i'm doing comparisons on floats. Shush. They were assigned manually so it should work.
@@ -129,7 +129,7 @@ bool NeuralNet::LearnStep() {
 	}
 	
 	// Also delet this
-	std::cout << "\nIteration number: " << learningIteration << ", currentValue =  " << currentValue << ", updatesWithouthanges =  " << updatesWithoutChanges << std::endl << std::endl;
+	//std::cout << "\nIteration number: " << learningIteration << ", currentValue =  " << currentValue << ", updatesWithouthanges =  " << updatesWithoutChanges << std::endl << std::endl;
 	// End of delet this
 	
 	// Pushing back current weights to history

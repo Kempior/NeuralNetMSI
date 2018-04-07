@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <iomanip>
 #include <ctime>
 #include <regex>
 
@@ -31,6 +33,8 @@ dist(-10, 10)
 	{
 		examples[i].resize(2);
 	}
+	
+	predictPoint.resize(2);
 	
 	generator();
 	
@@ -81,10 +85,15 @@ void Application::run()
 			if(neuralNet->LearnStep())
 			{
 				isLearning = false;
+				canvas->getWidget<Button>("SaveButton")->setIsActive(true);
+				canvas->getWidget<Button>("PredictButton")->setIsActive(true);
+				canvas->getWidget<TextField>("xTextField")->setIsActive(true);
+				canvas->getWidget<TextField>("yTextField")->setIsActive(true);
 			}
 			else
 			{
 				canvas->getWidget<HistoryGraph>("HistoryGraph")->addWeights(neuralNet->Weights());
+				canvas->getWidget<GeometryGraph>("GeometryGraph")->setWeights(neuralNet->Weights());
 			}
 		}
 
@@ -104,26 +113,37 @@ void Application::setupGUI()
 	setupDataBox();
 	setupInfoBox();
 	setupHistoryGraph();
+	setupGeometryGraph();
 }
 
 void Application::setupBoxes()
 {
 	//Data box
-	Box* dataBox = new Box("DataBox", sf::Vector2f(320.0f, 500.0f));
+	Box* dataBox = new Box("DataBox", sf::FloatRect(0.0f, 0.0f, 0.3f, 0.6f));
 	dataBox->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(), UPPER_LEFT);
 	canvas->addChildWidget(dataBox);
+	dataBox->recalculateSize();
 	
 	//Info Box
-	Box* infoBox = new Box("InfoBox", sf::Vector2f(320.0f, 500.0f));
+	Box* infoBox = new Box("InfoBox", sf::FloatRect(0.0f, 0.0f, 0.3f, 0.6f));
 	infoBox->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(), UPPER_LEFT);
 	infoBox->setIsActive(false);
 	canvas->addChildWidget(infoBox);
+	infoBox->recalculateSize();
 	
 	//History Box
-	Box* historyBox = new Box("HistoryBox", sf::Vector2f(1280.0f, 220.0f));
+	Box* historyBox = new Box("HistoryBox", sf::FloatRect(0.0f, 0.6f, 1.0f, 1.0f));
 	historyBox->setAnchor(sf::Vector2f(0.0f, 1.0f), sf::Vector2f(), LOWER_LEFT);
 	historyBox->setIsActive(false);
 	canvas->addChildWidget(historyBox);
+	historyBox->recalculateSize();
+	
+	//Geometry Box
+	Box* geometryBox = new Box("GeometryBox", sf::FloatRect(0.3f, 0.0f, 1.0f, 0.6f));
+	geometryBox->setAnchor(sf::Vector2f(1.0f, 0.0f), sf::Vector2f(), UPPER_RIGHT);
+	geometryBox->setIsActive(false);
+	canvas->addChildWidget(geometryBox);
+	geometryBox->recalculateSize();
 }
 
 void Application::setupDataBox()
@@ -286,7 +306,7 @@ void Application::setupInfoBox()
 	Box* infoBox = canvas->getWidget<Box>("InfoBox");
 	
 	////Top info buttons
-	Button* button = new Button("BackButton", sf::Vector2f(120.0f, 30.0f));
+	Button* button = new Button("BackButton", sf::Vector2f(110.0f, 30.0f));
 	button->setAnchor(sf::Vector2f(0.03f, 0.02f), sf::Vector2f(), UPPER_LEFT);
 	infoBox->addChildWidget(button);
 	
@@ -300,8 +320,43 @@ void Application::setupInfoBox()
 		infoBox->setIsActive(false);
 	});
 	
+	//
+	button = new Button("SaveButton", sf::Vector2f(110.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.5f, 0.02f), sf::Vector2f(), UP);
+	button->setIsActive(false);
+	infoBox->addChildWidget(button);
+	
+	label = new Label("SaveLabel", "Save");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this]()
+	{
+		std::fstream file;
+		file.open("wynik.txt", std::ios::out | std::ios::trunc);
+		
+		auto time = std::time(nullptr);
+		auto tl = *std::localtime(&time);
+		file << std::put_time(&tl, "%H:%M:%S %d-%m-%Y") << " ATH Łukasz Kempys, Wojciech Dubrownik" << std::endl;
+		
+		file << std::endl << "Punkty:" << std::endl;
+		for(unsigned int i = 0; i < examples.size(); ++i)
+		{
+			file << examples[i][0] << "\t" << examples[i][1] << std::endl;
+		}
+		
+		file << std::endl << "Wagi:" << std::endl;
+		std::vector<std::vector<float>> tmp = neuralNet->Weights();
+		for(unsigned int i = 0; i < tmp.size(); ++i)
+		{
+			file << tmp[i][0] << "\t" << tmp[i][1] << "\t" << tmp[i][2] << std::endl;
+		}
+		
+		file.close();
+	});
+	
 	////
-	button = new Button("StartButton", sf::Vector2f(120.0f, 30.0f));
+	button = new Button("StartButton", sf::Vector2f(110.0f, 30.0f));
 	button->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(), UPPER_RIGHT);
 	infoBox->addChildWidget(button);
 	
@@ -312,6 +367,7 @@ void Application::setupInfoBox()
 	button->setFunc([this]()
 	{
 		canvas->getWidget<Box>("HistoryBox")->setIsActive(true);
+		canvas->getWidget<Box>("GeometryBox")->setIsActive(true);
 		
 		neuralNet->LoadWeights(weights);
 		neuralNet->LoadLearningValues(examples);
@@ -320,16 +376,111 @@ void Application::setupInfoBox()
 		{
 			isLearning = true;
 			canvas->getWidget<HistoryGraph>("HistoryGraph")->reset();
+			canvas->getWidget<Button>("SaveButton")->setIsActive(false);
+			canvas->getWidget<Button>("PredictButton")->setIsActive(false);
+			canvas->getWidget<TextField>("xTextField")->setIsActive(false);
+			canvas->getWidget<TextField>("yTextField")->setIsActive(false);
 		}
 		else
 		{
 			neuralNet->Learn();
 			canvas->getWidget<HistoryGraph>("HistoryGraph")->setWeights(neuralNet->History());
+			canvas->getWidget<GeometryGraph>("GeometryGraph")->setPoints(examples);
+			canvas->getWidget<GeometryGraph>("GeometryGraph")->setWeights(neuralNet->Weights());
+			canvas->getWidget<Button>("SaveButton")->setIsActive(true);
+			canvas->getWidget<Button>("PredictButton")->setIsActive(true);
+			canvas->getWidget<TextField>("xTextField")->setIsActive(true);
+			canvas->getWidget<TextField>("yTextField")->setIsActive(true);
 		}
 	});
 	
+	//Predict
+	button = new Button("PredictButton", sf::Vector2f(110.0f, 30.0f));
+	button->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(0.0f, 40.0f), UPPER_RIGHT);
+	button->setIsActive(false);
+	infoBox->addChildWidget(button);
+	
+	label = new Label("PredictLabel", "Predict");
+	label->setAnchor(sf::Vector2f(0.5f, 0.5f), sf::Vector2f(), MIDDLE);
+	button->addChildWidget(label);
+	
+	button->setFunc([this]()
+	{
+		std::vector<float> result = neuralNet->Predict(predictPoint);
+		
+		int amount = 0;
+		for(unsigned int i = 0; i < result.size(); ++i)
+		{
+			if(result[i] == 1.0f)
+			{
+				++amount;
+			}
+		}
+		
+		if(amount != 1)
+		{
+			canvas->getWidget<Label>("ResultLabel")->setText("Nie nalezy do zadnego obszaru");
+		}
+		else
+		{
+			for(unsigned int i = 0; i < result.size(); ++i)
+			{
+				if(result[i] == 1.0f)
+				{
+					canvas->getWidget<Label>("ResultLabel")->setText("Nalezy do obszaru " + std::to_string(i + 1));
+				}
+			}
+		}
+	});
+	
+	label = new Label("ResultLabel", "");
+	label->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(0.0f, 160.0f), UPPER_RIGHT);
+	infoBox->addChildWidget(label);
+	
+	TextField* textField = new TextField("xTextField", sf::Vector2f(110.0f, 30.0f));
+	textField->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(0.0f, 80.0f), UPPER_RIGHT);
+	textField->setIsActive(false);
+	infoBox->addChildWidget(textField);
+	textField->setTextSourceFunc([this]() -> std::string
+	{
+		return std::to_string(predictPoint[0]);
+	});
+	textField->setDataUpdateFunc([this, textField]()
+	{
+		predictPoint[0] = atof(textField->getText().c_str());
+	});
+	textField->setValidateFunc([](std::string str) -> bool
+	{
+		return std::regex_match(str, std::regex("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?"));
+	});
+	
+	label = new Label("xLabel", "x");
+	label->setAnchor(sf::Vector2f(1.0f, 0.5f), sf::Vector2f(5.0f, 0.0f), LEFT);
+	textField->addChildWidget(label);
+	
+	textField = new TextField("yTextField", sf::Vector2f(110.0f, 30.0f));
+	textField->setAnchor(sf::Vector2f(0.97f, 0.02f), sf::Vector2f(0.0f, 120.0f), UPPER_RIGHT);
+	textField->setIsActive(false);
+	infoBox->addChildWidget(textField);
+	textField->setTextSourceFunc([this]() -> std::string
+	{
+		return std::to_string(predictPoint[1]);
+	});
+	textField->setDataUpdateFunc([this, textField]()
+	{
+		predictPoint[1] = atof(textField->getText().c_str());
+	});
+	textField->setValidateFunc([](std::string str) -> bool
+	{
+		return std::regex_match(str, std::regex("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?"));
+	});
+	
+	label = new Label("yLabel", "y");
+	label->setAnchor(sf::Vector2f(1.0f, 0.5f), sf::Vector2f(5.0f, 0.0f), LEFT);
+	textField->addChildWidget(label);
+	
 	////Text Field c
-	TextField* textField = new TextField("cTextField", sf::Vector2f(80.0f, 30.0f));
+	textField = new TextField("cTextField", sf::Vector2f(80.0f, 30.0f));
 	textField->setAnchor(sf::Vector2f(0.03f, 0.02f), sf::Vector2f(0.0f, 40.0f), UPPER_LEFT);
 	infoBox->addChildWidget(textField);
 	textField->setTextSourceFunc([this]() -> std::string
@@ -401,7 +552,7 @@ void Application::setupInfoBox()
 	{
 		if(speedMult > 0.15f)
 		{
-			speedMult -= 0.1f;
+			speedMult /= 2.0f;
 		}
 	});
 	
@@ -422,7 +573,7 @@ void Application::setupInfoBox()
 	infoBox->addChildWidget(button);
 	button->setFunc([this]()
 	{
-		speedMult += 0.1f;
+		speedMult *= 2.0f;
 	});
 	
 	label = new Label("FasterLabel", ">");
@@ -470,4 +621,13 @@ void Application::setupHistoryGraph()
 	HistoryGraph* historyGraph = new HistoryGraph("HistoryGraph", historyBox->getSize());
 	historyGraph->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(), UPPER_LEFT);
 	historyBox->addChildWidget(historyGraph);
+}
+
+void Application::setupGeometryGraph()
+{
+	Box* geometryBox = canvas->getWidget<Box>("GeometryBox");
+	
+	GeometryGraph* geometryGraph = new GeometryGraph("GeometryGraph", geometryBox->getSize());
+	geometryGraph->setAnchor(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(), UPPER_LEFT);
+	geometryBox->addChildWidget(geometryGraph);
 }

@@ -1,13 +1,18 @@
 #include "GUI/Box.hpp"
 
-Box::Box(std::string name, sf::Vector2f size): Widget(name),
-size(size)
+Box::Box(std::string name, sf::FloatRect rect): Widget(name),
+rect(rect)
 {
 	
 }
 
 void Box::handleEvent(const sf::Event& event)
 {
+	if(event.type == sf::Event::Resized)
+	{
+		recalculateSize();
+	}
+	
 	if(isActive)
 	{
 		Widget::handleEvent(event);
@@ -43,4 +48,21 @@ sf::Vector2f Box::getSize()
 void Box::setPosition(sf::Vector2f position)
 {
 	this->position = position;
+}
+
+void Box::recalculateSize()
+{
+	if(!parent)
+	{
+		return;
+	}
+	
+	sf::Vector2f parentSize = parent->getSize();
+	
+	sf::Vector2f tl = sf::Vector2f(rect.left * parentSize.x, rect.top * parentSize.y);
+	sf::Vector2f br = sf::Vector2f(rect.width * parentSize.x, rect.height * parentSize.y);
+	
+	size = br - tl;
+	
+	recalculatePosition();
 }
