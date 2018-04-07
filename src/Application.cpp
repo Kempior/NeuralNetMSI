@@ -372,20 +372,23 @@ void Application::setupInfoBox()
 		neuralNet->LoadWeights(weights);
 		neuralNet->LoadLearningValues(examples);
 		
+		canvas->getWidget<GeometryGraph>("GeometryGraph")->setPoints(examples);
+		
 		if(slowMotion)
 		{
 			isLearning = true;
 			canvas->getWidget<HistoryGraph>("HistoryGraph")->reset();
+			canvas->getWidget<HistoryGraph>("HistoryGraph")->addWeights(neuralNet->Weights());
 			canvas->getWidget<Button>("SaveButton")->setIsActive(false);
 			canvas->getWidget<Button>("PredictButton")->setIsActive(false);
 			canvas->getWidget<TextField>("xTextField")->setIsActive(false);
 			canvas->getWidget<TextField>("yTextField")->setIsActive(false);
+			canvas->getWidget<Label>("ResultLabel")->setText("");
 		}
 		else
 		{
 			neuralNet->Learn();
 			canvas->getWidget<HistoryGraph>("HistoryGraph")->setWeights(neuralNet->History());
-			canvas->getWidget<GeometryGraph>("GeometryGraph")->setPoints(examples);
 			canvas->getWidget<GeometryGraph>("GeometryGraph")->setWeights(neuralNet->Weights());
 			canvas->getWidget<Button>("SaveButton")->setIsActive(true);
 			canvas->getWidget<Button>("PredictButton")->setIsActive(true);
@@ -532,6 +535,11 @@ void Application::setupInfoBox()
 			isLearning = false;
 			neuralNet->Learn();
 			canvas->getWidget<HistoryGraph>("HistoryGraph")->setWeights(neuralNet->History());
+			canvas->getWidget<GeometryGraph>("GeometryGraph")->setWeights(neuralNet->Weights());
+			canvas->getWidget<Button>("SaveButton")->setIsActive(true);
+			canvas->getWidget<Button>("PredictButton")->setIsActive(true);
+			canvas->getWidget<TextField>("xTextField")->setIsActive(true);
+			canvas->getWidget<TextField>("yTextField")->setIsActive(true);
 		}
 		slowMotion = !slowMotion;
 	});
