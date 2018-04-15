@@ -37,6 +37,16 @@ size(size)
 			addChildWidget(label);
 		}
 	}
+	
+	Label* label = new Label("HistoryAxisX", "Iter");
+	label->setAnchor(sf::Vector2f(1.0f, 0.5f), sf::Vector2f(-5.0f, 0.0f), RIGHT);
+	label->setColor(sf::Color::White);
+	addChildWidget(label);
+	
+	label = new Label("HistoryAxisY", "W");
+	label->setAnchor(sf::Vector2f(0.035f, 0.03f), sf::Vector2f(0.0f, 0.0f), DOWN);
+	label->setColor(sf::Color::White);
+	addChildWidget(label);
 }
 
 void HistoryGraph::handleEvent(const sf::Event& event)

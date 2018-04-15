@@ -1,5 +1,7 @@
 #include "GUI/GeometryGraph.hpp"
 
+#include "GUI/Label.hpp"
+
 GeometryGraph::GeometryGraph(std::string name, sf::Vector2f size): Widget(name),
 size(size)
 {
@@ -14,6 +16,16 @@ size(size)
 	predictPoint.setFillColor(sf::Color::Green);
 	
 	graphView.setViewport(sf::FloatRect(0.3f, 0.0f, 0.7f, 0.6f));
+	
+	Label* label = new Label("GeometryAxisX", "X");
+	label->setAnchor(sf::Vector2f(1.0f, 0.522f), sf::Vector2f(-5.0f, 0.0f), RIGHT);
+	label->setColor(sf::Color::White);
+	addChildWidget(label);
+	
+	label = new Label("GeometryAxisY", "Y");
+	label->setAnchor(sf::Vector2f(0.485f, 0.0f), sf::Vector2f(0.0f, 0.0f), UP);
+	label->setColor(sf::Color::White);
+	addChildWidget(label);
 }
 
 void GeometryGraph::handleEvent(const sf::Event& event)
